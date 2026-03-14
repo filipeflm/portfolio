@@ -1,7 +1,7 @@
 [build]
   base = "filipe-portfolio"
   command = "npm run build"
-  publish = "filipe-portfolio/.next"
+  publish = ".next"
 
 [build.environment]
   NODE_VERSION = "22"
