@@ -124,11 +124,13 @@
   body {
     @apply bg-background text-foreground;
     background-color: #000000;
+    overflow-x: hidden;
   }
 
   html {
     scroll-behavior: smooth;
     background-color: #000000;
+    overflow-x: hidden;
   }
 }
 

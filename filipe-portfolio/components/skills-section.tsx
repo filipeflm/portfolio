@@ -1,190 +1,150 @@
 "use client"
-
 import { useEffect, useState } from "react"
 import {
-  Building2, Code2, Database, Cpu, Smartphone, BarChart3, TrendingUp,
-  Users, Lightbulb, Globe, Package, Zap
+  Code2, Server, Database, Cloud, Brain, Users,
+  Lightbulb, TrendingUp, Wrench, GitBranch, Smartphone, BarChart3,
 } from "lucide-react"
+import { useLanguage } from "@/contexts/language-context"
 
-interface SkillGroup {
-  category: string
-  icon: React.ComponentType<{ size?: number; className?: string }>
-  iconColor: string
-  skills: string[]
-}
-
-const skillGroups: SkillGroup[] = [
+const getCategories = (t: (en: string, pt: string) => string) => [
   {
-    category: "Leadership & Business",
-    icon: Building2,
-    iconColor: "text-blue-400",
-    skills: ["CEO / Founder", "Product Strategy", "Go-to-Market", "Team Building", "Startup Operations", "SaaS Business Model"],
-  },
-  {
-    category: "Product & Design",
-    icon: Lightbulb,
-    iconColor: "text-yellow-400",
-    skills: ["Product Management", "UX Thinking", "Roadmap Planning", "Customer Discovery", "Feature Prioritization"],
-  },
-  {
-    category: "Languages & Frameworks",
+    title: t("Core Stack", "Stack Principal"),
     icon: Code2,
-    iconColor: "text-cyan-400",
-    skills: ["Python", "TypeScript", "React.js", "FastAPI", "SQL"],
+    color: "text-blue-400",
+    border: "border-blue-400/20",
+    skills: ["Python", "FastAPI", "React", "TypeScript", "PostgreSQL", "CEO & Founder", "Product Strategy"],
   },
   {
-    category: "Databases",
-    icon: Database,
-    iconColor: "text-green-400",
-    skills: ["PostgreSQL", "Materialized Views", "Query Optimization", "Data Modeling"],
+    title: t("Backend", "Backend"),
+    icon: Server,
+    color: "text-cyan-400",
+    border: "border-cyan-400/20",
+    skills: ["FastAPI", "Node.js", "REST API", "WebSockets", "Celery", "Redis", "JWT Auth"],
   },
   {
-    category: "SaaS & Architecture",
-    icon: Zap,
-    iconColor: "text-indigo-400",
-    skills: ["Multi-Tenant SaaS", "API Design", "Microservices", "OAuth", "System Architecture"],
-  },
-  {
-    category: "DevOps & Deployment",
-    icon: Cpu,
-    iconColor: "text-orange-400",
-    skills: ["Docker", "GitHub Actions", "CI/CD", "Linux"],
-  },
-  {
-    category: "Mobile",
+    title: t("Frontend", "Frontend"),
     icon: Smartphone,
-    iconColor: "text-pink-400",
-    skills: ["Mobile Apps (Capacitor)", "React Native (basics)", "Progressive Web Apps"],
+    color: "text-indigo-400",
+    border: "border-indigo-400/20",
+    skills: ["React", "Next.js", "TypeScript", "Tailwind CSS", "React Native", "Zustand"],
   },
   {
-    category: "Data & Analytics",
-    icon: BarChart3,
-    iconColor: "text-purple-400",
-    skills: ["Data Analysis", "Machine Learning", "KPIs & Dashboards", "Mathematical Modeling", "Data Pipelines"],
+    title: t("Databases", "Bancos de Dados"),
+    icon: Database,
+    color: "text-purple-400",
+    border: "border-purple-400/20",
+    skills: ["PostgreSQL", "SQLite", "Redis", "SQLAlchemy", "Alembic", "Prisma"],
   },
   {
-    category: "Logistics Domain",
-    icon: Package,
-    iconColor: "text-teal-400",
-    skills: ["WMS", "Fleet Management", "Inventory Control", "Pallet Tracking", "Fuel Management", "Incident Management"],
+    title: t("DevOps & Cloud", "DevOps & Cloud"),
+    icon: Cloud,
+    color: "text-green-400",
+    border: "border-green-400/20",
+    skills: ["Docker", "Linux", "Nginx", "GitHub Actions", "GCP", "VPS Deployment"],
   },
   {
-    category: "Growth & Strategy",
-    icon: TrendingUp,
-    iconColor: "text-rose-400",
-    skills: ["Business Strategy", "OKRs", "Operational Excellence", "Process Improvement", "Reporting Systems"],
+    title: t("Data & AI", "Dados & IA"),
+    icon: Brain,
+    color: "text-yellow-400",
+    border: "border-yellow-400/20",
+    skills: ["Pandas", "Scikit-learn", "TensorFlow", "Jupyter", "Matplotlib", "SQL Analytics"],
   },
   {
-    category: "Collaboration",
+    title: t("Leadership & Business", "Liderança & Negócios"),
     icon: Users,
-    iconColor: "text-sky-400",
-    skills: ["Team Leadership", "Cross-functional Work", "Client Relations", "Technical Communication"],
+    color: "text-orange-400",
+    border: "border-orange-400/20",
+    skills: [t("Team Building", "Formação de Times"), t("Decision Making", "Tomada de Decisão"), t("Entrepreneurship", "Empreendedorismo"), "OKRs", t("Hiring", "Contratação")],
   },
   {
-    category: "Languages",
-    icon: Globe,
-    iconColor: "text-emerald-400",
-    skills: ["Portuguese (Native)", "English (Professional)", "Italian (Basic)"],
+    title: t("Product & Design", "Produto & Design"),
+    icon: Lightbulb,
+    color: "text-pink-400",
+    border: "border-pink-400/20",
+    skills: ["Figma", t("UX Research", "Pesquisa UX"), t("Roadmapping", "Roadmapping"), t("User Stories", "User Stories"), t("Wireframing", "Wireframing"), t("A/B Testing", "Testes A/B")],
   },
-]
-
-const coreStack = [
-  { name: "CEO & Founder", color: "from-blue-400 to-blue-600" },
-  { name: "Python", color: "from-yellow-400 to-yellow-600" },
-  { name: "FastAPI", color: "from-green-400 to-green-600" },
-  { name: "PostgreSQL", color: "from-blue-400 to-blue-600" },
-  { name: "React", color: "from-cyan-400 to-cyan-600" },
-  { name: "TypeScript", color: "from-blue-500 to-indigo-600" },
-  { name: "Docker", color: "from-sky-400 to-sky-600" },
-  { name: "SaaS Dev", color: "from-pink-400 to-rose-600" },
-  { name: "Product Strategy", color: "from-purple-400 to-purple-600" },
+  {
+    title: t("Growth & Strategy", "Crescimento & Estratégia"),
+    icon: TrendingUp,
+    color: "text-emerald-400",
+    border: "border-emerald-400/20",
+    skills: [t("Go-to-Market", "Go-to-Market"), "Pricing", t("Sales Strategy", "Estratégia de Vendas"), "SaaS Metrics", "MRR/ARR", t("Customer Success", "Sucesso do Cliente")],
+  },
+  {
+    title: t("Tools & Workflow", "Ferramentas & Workflow"),
+    icon: Wrench,
+    color: "text-slate-400",
+    border: "border-slate-400/20",
+    skills: ["Git", "GitHub", "Linear", "Notion", "Slack", "Postman", "VSCode"],
+  },
+  {
+    title: t("Analytics", "Analytics"),
+    icon: BarChart3,
+    color: "text-teal-400",
+    border: "border-teal-400/20",
+    skills: ["Google Analytics", "Metabase", "Power BI", "Excel/Sheets", t("Dashboard Design", "Design de Dashboards")],
+  },
+  {
+    title: t("Collaboration", "Colaboração"),
+    icon: GitBranch,
+    color: "text-rose-400",
+    border: "border-rose-400/20",
+    skills: ["Git Flow", "Code Review", "Agile/Scrum", t("Remote Work", "Trabalho Remoto"), "PR Reviews"],
+  },
 ]
 
 export default function SkillsSection() {
   const [isVisible, setIsVisible] = useState(false)
+  const { t } = useLanguage()
 
   useEffect(() => {
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) setIsVisible(true)
-      },
-      { threshold: 0.1 },
+      ([entry]) => { if (entry.isIntersecting) setIsVisible(true) },
+      { threshold: 0.1 }
     )
-    const element = document.getElementById("skills")
-    if (element) observer.observe(element)
+    const el = document.getElementById("skills")
+    if (el) observer.observe(el)
     return () => observer.disconnect()
   }, [])
 
+  const categories = getCategories(t)
+
   return (
     <section id="skills" className="py-20 relative">
-      <div className="absolute inset-0 bg-gradient-to-b from-black to-gray-900" />
-
+      <div className="absolute inset-0 bg-gradient-to-b from-gray-900 via-black to-gray-900" />
       <div className="relative z-10 max-w-6xl mx-auto px-6">
-        {/* Header */}
-        <div className={`text-center mb-14 transition-all duration-700 ${isVisible ? "animate-slide-up" : "opacity-0"}`}>
-          <p className="text-blue-400 text-sm font-semibold uppercase tracking-widest mb-2">Expertise</p>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white">
-            Skills &amp; Technologies
-          </h2>
-          <p className="text-white/50 mt-4 text-sm max-w-xl mx-auto">
-            From business strategy and product vision to technical implementation — a full-stack founder&apos;s toolkit
-          </p>
-        </div>
+        <div className={`transition-all duration-1000 ${isVisible ? "animate-slide-up" : "opacity-0"}`}>
+          <div className="text-center mb-16">
+            <p className="text-blue-400 text-sm font-semibold uppercase tracking-widest mb-2">{t("Expertise", "Especialidades")}</p>
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white">
+              {t("Skills & ", "Habilidades & ")}{" "}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">
+                {t("Technologies", "Tecnologias")}
+              </span>
+            </h2>
+          </div>
 
-        {/* Skill groups grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-          {skillGroups.map((group, groupIndex) => {
-            const Icon = group.icon
-            return (
-              <div
-                key={group.category}
-                className={`glass border border-white/10 rounded-2xl p-5 hover:border-blue-400/30 transition-all duration-500 group ${
-                  isVisible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"
-                }`}
-                style={{ transitionDelay: `${groupIndex * 60}ms` }}
-              >
-                <div className="flex items-center gap-2.5 mb-4">
-                  <div className="w-8 h-8 glass rounded-lg flex items-center justify-center border border-white/10 group-hover:border-white/20 transition-all duration-300">
-                    <Icon size={15} className={group.iconColor} />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {categories.map((cat) => {
+              const Icon = cat.icon
+              return (
+                <div key={cat.title} className={`glass border ${cat.border} rounded-2xl p-5 hover:border-white/20 transition-all duration-300 hover:scale-[1.02]`}>
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className={`glass border ${cat.border} rounded-xl p-2`}>
+                      <Icon size={18} className={cat.color} />
+                    </div>
+                    <h3 className="text-white font-semibold text-sm">{cat.title}</h3>
                   </div>
-                  <h3 className="text-sm font-semibold text-white/90 leading-tight">{group.category}</h3>
+                  <div className="flex flex-wrap gap-1.5">
+                    {cat.skills.map((skill) => (
+                      <span key={skill} className="glass border border-white/10 rounded-lg px-2.5 py-1 text-white/70 text-xs hover:text-white/90 hover:border-white/20 transition-colors duration-200">
+                        {skill}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-
-                <div className="flex flex-wrap gap-1.5">
-                  {group.skills.map((skill) => (
-                    <span
-                      key={skill}
-                      className="px-2.5 py-1 glass rounded-lg text-xs text-white/65 border border-white/10 group-hover:border-blue-400/20 hover:text-white hover:border-blue-400/40 transition-all duration-200 cursor-default"
-                    >
-                      {skill}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            )
-          })}
-        </div>
-
-        {/* Core stack highlight */}
-        <div
-          className={`mt-12 transition-all duration-700 ${isVisible ? "translate-y-0 opacity-100" : "translate-y-8 opacity-0"}`}
-          style={{ transitionDelay: "700ms" }}
-        >
-          <div className="glass border border-white/10 rounded-2xl p-8">
-            <h3 className="text-lg font-bold text-white mb-6 text-center">Core Stack</h3>
-            <div className="flex flex-wrap justify-center gap-3">
-              {coreStack.map((tech) => (
-                <div
-                  key={tech.name}
-                  className="px-4 py-2 rounded-xl text-white font-semibold text-sm hover:scale-105 transition-transform duration-200 cursor-default border border-white/10"
-                  style={{ background: "rgba(255,255,255,0.05)" }}
-                >
-                  <span className={`text-transparent bg-clip-text bg-gradient-to-r ${tech.color}`}>
-                    {tech.name}
-                  </span>
-                </div>
-              ))}
-            </div>
+              )
+            })}
           </div>
         </div>
       </div>

@@ -1,171 +1,145 @@
 "use client"
-
 import { useEffect, useState } from "react"
-import { Calendar, Building2, TrendingUp, Code2, BarChart3, Users } from "lucide-react"
+import { Building2, Briefcase, Code2, Server, Brain } from "lucide-react"
+import { useLanguage } from "@/contexts/language-context"
 
-interface Experience {
-  company: string
-  role: string
-  period: string
-  type: string
-  description: string
-  skills: string[]
-  current?: boolean
-  icon: React.ComponentType<{ size?: number; className?: string }>
-  iconColor: string
-}
-
-const experiences: Experience[] = [
+const getExperiences = (t: (en: string, pt: string) => string) => [
   {
     company: "Estoki",
-    role: "CEO & Founder",
-    period: "Apr 2025 – Present",
-    type: "Full-time",
-    description:
-      "Co-founded and lead Estoki, a multi-tenant WMS & Logistics SaaS platform. Responsible for product vision, technical architecture, team leadership, commercial strategy and go-to-market execution. Helped build the entire platform from the ground up: fleet management, warehouse control, executive dashboards, mobile apps (Capacitor), OAuth integrations and CI/CD pipelines with Docker and GitHub Actions.",
-    skills: ["SaaS Leadership", "Product Strategy", "FastAPI", "React", "TypeScript", "PostgreSQL", "Docker", "CI/CD", "OAuth"],
-    current: true,
+    role: t("CEO & Founder", "CEO & Fundador"),
+    period: t("2023 – Present", "2023 – Presente"),
+    type: t("Full-time", "Tempo integral"),
     icon: Building2,
-    iconColor: "text-blue-400",
+    color: "text-blue-400",
+    bg: "border-blue-400/30",
+    description: t(
+      "Co-founded and lead Estoki — a WMS & Logistics SaaS platform. Help build the entire platform from scratch: multi-tenant architecture, fleet management, warehouse control, executive dashboards, mobile app and API integrations.",
+      "Co-fundei e lidero a Estoki — uma plataforma SaaS de WMS & Logística. Ajudo a construir toda a plataforma do zero: arquitetura multi-tenant, gestão de frota, controle de armazém, dashboards executivos, app mobile e integrações de API."
+    ),
+    stack: ["Python", "FastAPI", "React", "TypeScript", "PostgreSQL", "Docker"],
   },
   {
-    company: "LEITE EXPRE",
-    role: "Systems Developer",
-    period: "2024 – Present",
-    type: "Full-time",
-    description:
-      "Built internal logistics and operations systems from scratch. Developed fleet intelligence with real-time analytics, cargo gamification systems, warehouse management, executive dashboards with KPIs, pallet tracking between branches, fueling control, incident management and invoice verification systems — all running in production.",
-    skills: ["Python", "FastAPI", "PostgreSQL", "React", "TypeScript", "Data Analytics"],
-    current: true,
-    icon: TrendingUp,
-    iconColor: "text-cyan-400",
+    company: t("PetroSync", "PetroSync"),
+    role: t("Backend Developer", "Desenvolvedor Backend"),
+    period: "2022 – 2023",
+    type: t("Contract", "Contrato"),
+    icon: Server,
+    color: "text-cyan-400",
+    bg: "border-cyan-400/30",
+    description: t(
+      "Developed backend integrations and data pipelines for the oil & gas sector, focusing on reliability and performance at scale.",
+      "Desenvolveu integrações backend e pipelines de dados para o setor de óleo & gás, com foco em confiabilidade e performance em escala."
+    ),
+    stack: ["Python", "FastAPI", "PostgreSQL", "REST API"],
   },
   {
-    company: "IK Project",
-    role: "Developer & Consultant",
-    period: "Jan 2022 – Present",
-    type: "Freelance",
-    description:
-      "Development of custom systems and solutions for operations management. APIs, automation pipelines and dashboards for clients across different industries.",
-    skills: ["Python", "FastAPI", "PostgreSQL", "Data Analysis"],
-    current: true,
+    company: t("Freelance", "Freelancer"),
+    role: t("Full-Stack Developer", "Desenvolvedor Full-Stack"),
+    period: "2020 – 2022",
+    type: t("Self-employed", "Autônomo"),
     icon: Code2,
-    iconColor: "text-indigo-400",
+    color: "text-indigo-400",
+    bg: "border-indigo-400/30",
+    description: t(
+      "Built web applications, automation scripts and data analysis solutions for multiple clients across different industries.",
+      "Construiu aplicações web, scripts de automação e soluções de análise de dados para clientes de diferentes setores."
+    ),
+    stack: ["Python", "React", "Node.js", "PostgreSQL"],
   },
   {
-    company: "Freelance",
-    role: "Data Analyst",
-    period: "Dec 2019 – Present",
-    type: "Freelance",
-    description:
-      "Data analysis, pipeline creation and reporting for decision support. Statistical analyses, visualizations and machine learning models for clients.",
-    skills: ["Python", "SQL", "Machine Learning", "Data Visualization"],
-    current: true,
-    icon: BarChart3,
-    iconColor: "text-green-400",
-  },
-  {
-    company: "Leite Express",
-    role: "Administrative & Operations",
-    period: "2024 – 2025",
-    type: "Part-time",
-    description:
-      "Administrative and operational support. Identified opportunities for internal process improvement, which became the foundation for the systems built at Estoki.",
-    skills: ["Operations", "Logistics", "Process Management"],
-    current: false,
-    icon: Users,
-    iconColor: "text-white/50",
+    company: "Le Wagon",
+    role: t("Data Science & AI", "Data Science & IA"),
+    period: "2022",
+    type: t("Bootcamp", "Bootcamp"),
+    icon: Brain,
+    color: "text-green-400",
+    bg: "border-green-400/30",
+    description: t(
+      "Intensive 9-week bootcamp covering machine learning, deep learning, data engineering and real-world ML deployments.",
+      "Bootcamp intensivo de 9 semanas cobrindo machine learning, deep learning, engenharia de dados e deploys de ML no mundo real."
+    ),
+    stack: ["Python", "TensorFlow", "Pandas", "Scikit-learn", "GCP"],
   },
 ]
 
 export default function ExperienceSection() {
   const [isVisible, setIsVisible] = useState(false)
+  const { t } = useLanguage()
 
   useEffect(() => {
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) setIsVisible(true)
-      },
-      { threshold: 0.1 },
+      ([entry]) => { if (entry.isIntersecting) setIsVisible(true) },
+      { threshold: 0.1 }
     )
-    const element = document.getElementById("experience")
-    if (element) observer.observe(element)
+    const el = document.getElementById("experience")
+    if (el) observer.observe(el)
     return () => observer.disconnect()
   }, [])
 
+  const experiences = getExperiences(t)
+
   return (
     <section id="experience" className="py-20 relative">
-      <div className="absolute inset-0 bg-gradient-to-b from-gray-900 to-black" />
+      <div className="absolute inset-0 bg-gradient-to-b from-gray-900 via-black to-gray-900" />
+      <div className="relative z-10 max-w-4xl mx-auto px-6">
+        <div className={`transition-all duration-1000 ${isVisible ? "animate-slide-up" : "opacity-0"}`}>
+          <div className="text-center mb-16">
+            <p className="text-blue-400 text-sm font-semibold uppercase tracking-widest mb-2">{t("Career", "Carreira")}</p>
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white">
+              {t("Professional", "Experiência")}{" "}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">
+                {t("Experience", "Profissional")}
+              </span>
+            </h2>
+          </div>
 
-      <div className="relative z-10 max-w-5xl mx-auto px-6">
-        {/* Header */}
-        <div className={`text-center mb-14 transition-all duration-700 ${isVisible ? "animate-slide-up" : "opacity-0"}`}>
-          <p className="text-blue-400 text-sm font-semibold uppercase tracking-widest mb-2">Career</p>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white">
-            Professional Experience
-          </h2>
-        </div>
+          <div className="relative">
+            <div className="absolute left-8 top-0 bottom-0 w-px bg-gradient-to-b from-blue-400/50 via-cyan-400/30 to-transparent hidden sm:block" />
 
-        {/* Timeline */}
-        <div className="relative">
-          <div className="absolute left-4 sm:left-8 top-0 bottom-0 w-px bg-gradient-to-b from-blue-500/50 via-cyan-500/30 to-transparent" />
+            <div className="space-y-8">
+              {experiences.map((exp, i) => {
+                const Icon = exp.icon
+                return (
+                  <div key={i} className="relative flex gap-6 group">
+                    <div className="relative z-10 hidden sm:flex flex-col items-center">
+                      <div className={`w-16 h-16 glass rounded-2xl border ${exp.bg} flex items-center justify-center group-hover:scale-110 transition-transform duration-300`}>
+                        <Icon size={24} className={exp.color} />
+                      </div>
+                    </div>
 
-          <div className="space-y-8">
-            {experiences.map((exp, index) => {
-              const Icon = exp.icon
-              return (
-                <div
-                  key={index}
-                  className={`relative pl-12 sm:pl-20 transition-all duration-700 ${
-                    isVisible ? "translate-x-0 opacity-100" : "translate-x-8 opacity-0"
-                  }`}
-                  style={{ transitionDelay: `${index * 150}ms` }}
-                >
-                  {/* Timeline icon dot */}
-                  <div className="absolute left-1 sm:left-5 top-4 w-7 h-7 rounded-full border border-white/10 bg-black flex items-center justify-center glass">
-                    <Icon size={13} className={exp.iconColor} />
-                  </div>
-
-                  {/* Card */}
-                  <div className="glass border border-white/10 rounded-2xl p-6 hover:border-blue-400/30 transition-all duration-300 group">
-                    <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4">
-                      <div>
-                        <div className="flex items-center gap-2 mb-1">
+                    <div className="flex-1 glass border border-white/10 rounded-2xl p-6 group-hover:border-white/20 transition-all duration-300">
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2 mb-3">
+                        <div>
                           <h3 className="text-lg font-bold text-white">{exp.role}</h3>
-                          {exp.current && (
-                            <span className="px-2 py-0.5 text-xs font-medium bg-blue-500/20 text-blue-400 rounded-full border border-blue-400/30 flex items-center gap-1">
-                              <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse inline-block" />
-                              Current
-                            </span>
-                          )}
+                          <p className={`font-semibold ${exp.color} text-sm`}>{exp.company}</p>
                         </div>
-                        <p className={`font-semibold text-sm ${exp.iconColor}`}>{exp.company}</p>
+                        <div className="flex flex-col sm:items-end gap-1">
+                          <span className="text-white/50 text-xs">{exp.period}</span>
+                          <span className="glass border border-white/10 rounded-full px-2.5 py-0.5 text-white/60 text-xs">{exp.type}</span>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-1.5 text-white/50 text-xs">
-                        <Calendar size={12} />
-                        <span>{exp.period}</span>
-                        <span className="px-2 py-0.5 glass rounded-full text-white/40 border border-white/10">
-                          {exp.type}
-                        </span>
+
+                      <p className="text-white/65 text-sm leading-relaxed mb-4">{exp.description}</p>
+
+                      <div className="flex flex-wrap gap-1.5">
+                        {exp.stack.map((tech) => (
+                          <span key={tech} className="glass border border-white/10 rounded-lg px-2.5 py-1 text-white/70 text-xs">
+                            {tech}
+                          </span>
+                        ))}
                       </div>
-                    </div>
-
-                    <p className="text-white/65 text-sm leading-relaxed mb-4">{exp.description}</p>
-
-                    <div className="flex flex-wrap gap-2">
-                      {exp.skills.map((skill) => (
-                        <span
-                          key={skill}
-                          className="px-2.5 py-1 glass rounded-lg text-xs text-white/70 border border-white/10 group-hover:border-blue-400/20 transition-colors duration-300"
-                        >
-                          {skill}
-                        </span>
-                      ))}
                     </div>
                   </div>
-                </div>
-              )
-            })}
+                )
+              })}
+            </div>
+          </div>
+
+          {/* Briefcase icon at the bottom of the timeline */}
+          <div className="hidden sm:flex justify-start pl-4 mt-4">
+            <div className="w-8 h-8 glass rounded-full border border-white/10 flex items-center justify-center">
+              <Briefcase size={14} className="text-white/30" />
+            </div>
           </div>
         </div>
       </div>
