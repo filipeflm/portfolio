@@ -1,0 +1,11 @@
+[build]
+  base = "filipe-portfolio"
+  command = "npm install --legacy-peer-deps && npm run build"
+  publish = "filipe-portfolio/.next"
+
+[build.environment]
+  NODE_VERSION = "22"
+  NPM_FLAGS = "--legacy-peer-deps"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
